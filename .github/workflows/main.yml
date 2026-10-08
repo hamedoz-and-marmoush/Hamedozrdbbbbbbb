@@ -32,7 +32,7 @@ jobs:
       - name: Create RDP User with Fixed Password
         run: |
           $password = "TechZoner@001"
-          $securePass = ConvertTo-SecureString $password -AsPlainText -Force
+          $securePass = ConvertTo-SecureString$password -AsPlainText -Force
           if (-not (Get-LocalUser -Name "RDP" -ErrorAction SilentlyContinue)) {
               New-LocalUser -Name "RDP" -Password $securePass -AccountNeverExpires
           }
@@ -51,7 +51,7 @@ jobs:
           $tsUrl = "https://pkgs.tailscale.com/stable/tailscale-setup-1.82.0-amd64.msi"
           $installerPath = "$env:TEMP\tailscale.msi"
          
-          Invoke-WebRequest -Uri $tsUrl -OutFile $installerPath
+          Invoke-WebRequest -Uri $tsUrl -OutFile$installerPath
           Start-Process msiexec.exe -ArgumentList "/i", "`"$installerPath`"", "/quiet", "/norestart" -Wait
           Remove-Item $installerPath -Force
 
@@ -61,9 +61,8 @@ jobs:
           & "$env:ProgramFiles\Tailscale\tailscale.exe" up --authkey=${{ secrets.TAILSCALE_AUTHKEY }} --hostname=gh-runner-$env:GITHUB_RUN_ID
          
           # Wait for Tailscale to assign an IP
-          $tsIP = $null
-          $retries = 0
-          while (-not $tsIP -and $retries -lt 10) {
+          $tsIP = $null$retries = 0
+          while (-not $tsIP -and$retries -lt 10) {
               $tsIP = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
               Start-Sleep -Seconds 5
               $retries++
@@ -80,7 +79,7 @@ jobs:
           Write-Host "Tailscale IP: $env:TAILSCALE_IP"
          
           # Test connectivity using Test-NetConnection against the Tailscale IP on port 3389
-          $testResult = Test-NetConnection -ComputerName $env:TAILSCALE_IP -Port 3389
+          $testResult = Test-NetConnection -ComputerName$env:TAILSCALE_IP -Port 3389
           if (-not $testResult.TcpTestSucceeded) {
               Write-Error "TCP connection to RDP port 3389 failed"
               exit 1
@@ -107,16 +106,16 @@ jobs:
                           New-Item -ItemType Directory -Path $startupPath -Force | Out-Null
                       }
 
-                      Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -UseBasicParsing
-                      Write-Host "âœ… Downloads.bat copied to $downloadPath"
+                      Invoke-WebRequest -Uri $downloadUrl -OutFile$downloadPath -UseBasicParsing
+                      Write-Host "✅ Downloads.bat copied to $downloadPath"
 
                       # Run the batch file for the first time
                       cmd /c $downloadPath
-                      Write-Host "âœ… Downloads.bat executed successfully"
+                      Write-Host "✅ Downloads.bat executed successfully"
                       break
                   }
                   catch {
-                      Write-Host "âŒ Error copying or executing Downloads.bat: $($_.Exception.Message)"
+                      Write-Host "❌ Error copying or executing Downloads.bat: $($_.Exception.Message)"
                       break
                   }
               }
